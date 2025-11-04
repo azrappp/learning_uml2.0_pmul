@@ -1,0 +1,31 @@
+@startuml
+mainframe **sd** TestList
+hide footbox
+
+actor "**: User**" as User
+boundary "**: Test List Page**" as TestListPage
+control "**: Test Controller**" as TestController
+entity "**: Test Case Repository**" as TestCaseRepository
+
+User -> TestListPage : searchTest(keyword)
+activate TestListPage
+
+TestListPage -> TestController : processTestSearch(keyword)
+activate TestController
+
+TestController -> TestCaseRepository : findByCriteria(keyword)
+activate TestCaseRepository
+TestCaseRepository --> TestController : returnResults(testList)
+deactivate TestCaseRepository
+
+TestController --> TestListPage : returnResults(testList)
+deactivate TestController
+
+alt No search results found
+    TestListPage -> TestListPage : displayError("No tests found")
+else Search results found
+    TestListPage -> TestListPage : displaySearchResults(testList)
+end
+
+deactivate TestListPage
+@enduml

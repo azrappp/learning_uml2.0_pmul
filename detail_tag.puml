@@ -1,0 +1,27 @@
+@startuml
+mainframe **sd** DetailTag  
+hide footbox
+
+actor "**: User**" as User
+boundary "**: TagManagementPage**" as TagPage
+control "**: TagController**" as TagController
+entity "**: TagRepository**" as TagRepository
+
+User -> TagPage : selectTag(tagID)
+activate TagPage
+
+TagPage -> TagController : fetchTagDetails(tagID)
+activate TagController
+
+TagController -> TagRepository : getTagByID(tagID)
+activate TagRepository
+
+TagRepository --> TagController : tagData
+deactivate TagRepository
+
+TagController --> TagPage : tagData
+deactivate TagController
+
+
+deactivate TagPage
+@enduml

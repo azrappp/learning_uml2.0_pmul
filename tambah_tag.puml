@@ -1,0 +1,66 @@
+@startuml
+mainframe **sd** Create New Tag
+hide footbox
+
+actor "**: User**" as User
+boundary "**: TagManagementPage**" as TagPage
+control "**: TagController**" as TagController
+entity "**: TagRepository**" as TagRepository
+
+User -> TagPage : saveTag(name, description)
+activate TagPage
+
+TagPage -> TagPage : validateForm(name)
+activate TagPage
+deactivate TagPage
+
+opt form invalid
+    TagPage -> TagPage : displayError("Tag name is required")
+    activate TagPage
+    deactivate TagPage
+end
+    User -> TagPage : saveTag(name, description)
+    TagPage -> TagPage : validateForm(name)
+    activate TagPage
+    deactivate TagPage
+    TagPage -> TagController : createNewTag(name, description)
+    activate TagController
+    deactivate TagPage
+
+        TagController -> TagRepository : save(name, description)
+        activate TagRepository
+        TagRepository --> TagController : saveStatus
+        deactivate TagRepository
+    alt existingTag is not null
+        TagController --> TagPage : error("Tag already exists")
+        activate TagPage
+        deactivate TagController
+        
+        TagPage -> TagPage : displayError("Tag already exists")
+        activate TagPage
+
+    else existingTag is null
+        deactivate TagPage
+        deactivate TagPage
+        User -> TagPage : saveTag(name, description)
+        activate TagPage
+        TagPage -> TagPage : validateForm(name)
+        activate TagPage
+        deactivate TagPage
+        TagPage -> TagController : createNewTag(name, description)
+        activate TagController
+        TagController -> TagRepository : save(name, description)
+        activate TagRepository
+        TagRepository --> TagController : saveStatus
+        deactivate TagRepository
+
+        TagController --> TagPage : saveStatus
+        deactivate TagController
+
+        TagPage -> TagPage : reloadList()
+        activate TagPage
+        deactivate TagPage
+        
+        deactivate TagPage
+    end
+@enduml

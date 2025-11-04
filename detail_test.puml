@@ -1,0 +1,25 @@
+@startuml
+mainframe **sd** DetailReport
+hide footbox
+
+actor "**: User**" as User
+boundary "**: DetailReportPage**" as DetailReportPage
+control "**: TestController**" as TestController
+entity "**: TestCaseRepository**" as TestCaseRepository
+
+User -> DetailReportPage : selectTestCase(testCaseID)
+activate DetailReportPage
+
+DetailReportPage -> TestController : fetchTestDetails(testCaseID)
+activate TestController
+
+TestController -> TestCaseRepository : getTestByID(testCaseID)
+activate TestCaseRepository
+
+' Koreksi Mistake 3.21 & 3.11: Menggunakan pesan balasan (-->) dengan nilai
+TestCaseRepository --> TestController : testData
+deactivate TestCaseRepository
+
+TestController --> DetailReportPage : testData
+deactivate TestController
+@enduml

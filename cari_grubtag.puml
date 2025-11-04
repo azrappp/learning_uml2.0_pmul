@@ -1,0 +1,31 @@
+@startuml
+mainframe **sd** GroupTagSearch
+hide footbox
+
+actor ": **User**" as User
+boundary ": **//Group Tag Management Page//**" as GroupTagPage
+control ": **//Group Tag Controller//**" as GroupTagController
+entity ": **//Group Tag Repository//**" as GroupTagRepository
+
+User -> GroupTagPage : searchGroupTag(keyword)
+activate GroupTagPage
+
+GroupTagPage -> GroupTagController : processGroupSearch(keyword)
+activate GroupTagController
+
+GroupTagController -> GroupTagRepository : findByName(keyword)
+activate GroupTagRepository
+GroupTagRepository --> GroupTagController : returnResults(groupTagList)
+deactivate GroupTagRepository
+
+GroupTagController --> GroupTagPage : returnResults(groupTagList)
+deactivate GroupTagController
+
+alt No matching group tags found
+    GroupTagPage -> GroupTagPage : displayError("No matching group tags found")
+else Results found
+    GroupTagPage -> GroupTagPage : displaySearchResults(groupTagList)
+end
+
+deactivate GroupTagPage
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+mainframe **sd** DetailGrubTag
+hide footbox
+
+actor "**: User**" as User
+boundary "**: TagGroupDetailPage**" as TagGroupDetailPage
+control "**: TagGroupController**" as TagGroupController
+entity "**: TagGroupRepository**" as TagGroupRepository
+
+User -> TagGroupDetailPage : selectTagGroup(tagGroupID)
+activate TagGroupDetailPage
+
+TagGroupDetailPage -> TagGroupController : fetchTagGroupDetails(tagGroupID)
+activate TagGroupController
+
+TagGroupController -> TagGroupRepository : getTagGroupByID(tagGroupID)
+activate TagGroupRepository
+
+' Koreksi Mistake 3.21 & 3.11: Menggunakan pesan balasan (-->) dengan nilai
+TagGroupRepository --> TagGroupController : tagGroupData
+deactivate TagGroupRepository
+
+TagGroupController --> TagGroupDetailPage : tagGroupData
+deactivate TagGroupController
+
+
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+mainframe **sd** DetailReport
+hide footbox
+
+actor "**: User**" as User
+boundary "**: ReportListPage**" as ReportListPage
+control "**: ReportController**" as ReportController
+entity "**: ReportRepository**" as ReportRepository
+
+User -> ReportListPage : selectReport(reportID)
+activate ReportListPage
+
+ReportListPage -> ReportController : fetchReportDetail(reportID)
+activate ReportController
+
+ReportController -> ReportRepository : getReportByID(reportID)
+activate ReportRepository
+
+' Koreksi Mistake 3.21 & 3.11: Menggunakan pesan balasan (-->) dengan nilai
+ReportRepository --> ReportController : reportData
+deactivate ReportRepository
+
+ReportController --> ReportListPage : reportData
+deactivate ReportController
+
+
+deactivate ReportListPage
+@enduml

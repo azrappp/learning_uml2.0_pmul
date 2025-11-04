@@ -1,0 +1,34 @@
+@startuml
+mainframe **sd** EksekusiTest
+hide footbox
+
+actor "**: User**" as User
+boundary "**: ExecutionPage**" as ExecutionPage
+control "**: ExecutionController**" as ExecutionController
+boundary "**: BitbucketAPI**" as BitbucketAPI
+
+User -> ExecutionPage : executeRun(environment, optionalFilter)
+activate ExecutionPage
+
+ExecutionPage -> ExecutionController : processExecution(environment, optionalFilter)
+activate ExecutionController
+
+ExecutionController -> BitbucketAPI : triggerWorkflow(environment, optionalFilter)
+activate BitbucketAPI
+
+' Koreksi Mistake 3.21 & 3.11: Menggunakan pesan balasan (-->) dengan nilai
+BitbucketAPI --> ExecutionController : status
+deactivate BitbucketAPI
+
+ExecutionController --> ExecutionPage : status
+deactivate ExecutionController
+
+' Skenario Alternatif: Cek status balasan
+alt trigger failed
+    ExecutionPage -> User : displayError("Execution trigger failed")
+else trigger successful
+    ExecutionPage -> User : displaySuccess("Execution triggered: " + status)
+end
+
+deactivate ExecutionPage
+@enduml

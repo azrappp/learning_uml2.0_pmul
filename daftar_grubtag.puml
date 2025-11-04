@@ -1,0 +1,36 @@
+@startuml
+mainframe **sd** Load Tag Groups
+hide footbox
+
+actor "**: User**" as User
+boundary "**: TagGroupManagementPage**" as TagGroupManagementPage
+control "**: TagGroupController**" as TagGroupController
+entity "**: TagGroupRepository**" as TagGroupRepository
+
+' --- PANAH YANG DITAMBAHKAN ---
+' Sesuai Rule 1, Aktor mengirim pesan ke Boundary
+User -> TagGroupManagementPage : viewTagGroups()
+activate TagGroupManagementPage
+
+' Alur sisa berlanjut seperti sebelumnya
+TagGroupManagementPage -> TagGroupController : loadTagGroups()
+activate TagGroupController
+
+TagGroupController -> TagGroupRepository : fetchAllTagGroups()
+activate TagGroupRepository
+
+TagGroupRepository --> TagGroupController : tagGroupList
+deactivate TagGroupRepository
+
+TagGroupController --> TagGroupManagementPage : tagGroupList
+deactivate TagGroupController
+
+alt tagGroupList is empty
+    TagGroupManagementPage -> TagGroupManagementPage : displayMessage("No tag groups found")
+else tagGroupList is not empty
+    TagGroupManagementPage -> TagGroupManagementPage : displayTagGroups(tagGroupList)
+end
+
+deactivate TagGroupManagementPage
+
+@enduml

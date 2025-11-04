@@ -1,0 +1,31 @@
+@startuml
+mainframe **sd** TagSearch
+hide footbox
+
+actor "**: User**" as User
+boundary "**: Tag Management Page**" as TagPage
+control "**: Tag Controller**" as TagController
+entity "**: Tag Repository**" as TagRepository
+
+User -> TagPage : searchTag(keyword)
+activate TagPage
+
+TagPage -> TagController : processTagSearch(keyword)
+activate TagController
+
+TagController -> TagRepository : findByCriteria(keyword)
+activate TagRepository
+TagRepository --> TagController : returnResults(tagList)
+deactivate TagRepository
+
+TagController --> TagPage : returnResults(tagList)
+deactivate TagController
+
+alt No search results found
+    TagPage -> TagPage : displayError("No tags found")
+else Search results found
+    TagPage -> TagPage : displaySearchResults(tagList)
+end
+
+deactivate TagPage
+@enduml

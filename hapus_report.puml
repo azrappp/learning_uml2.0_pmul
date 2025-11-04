@@ -1,0 +1,44 @@
+@startuml
+mainframe **sd** HapusReport
+hide footbox
+
+actor "**: User**" as User
+boundary "**: ReportListPage**" as ReportListPage
+control "**: ReportController**" as ReportController
+entity "**: ReportRepository**" as ReportRepository
+
+User -> ReportListPage : clickDelete(reportID)
+activate ReportListPage
+
+ReportListPage -> ReportListPage : displayConfirmationDialog()
+activate ReportListPage
+deactivate ReportListPage
+
+alt User cancels
+    User -> ReportListPage : cancelDelete()
+    deactivate ReportListPage
+
+else User confirms
+    User -> ReportListPage : confirmDelete(reportID)
+    activate ReportListPage
+    ReportListPage -> ReportController : deleteReport(reportID)
+    deactivate ReportListPage
+    activate ReportController
+
+    ReportController -> ReportRepository : deleteReportByID(reportID)
+    activate ReportRepository
+
+    ReportRepository --> ReportController : deleteStatus
+    deactivate ReportRepository
+
+    ReportController --> ReportListPage : deleteStatus
+    deactivate ReportController
+    activate ReportListPage
+
+    ReportListPage -> ReportListPage : reloadList()
+    activate ReportListPage
+    deactivate ReportListPage
+
+    deactivate ReportListPage
+end
+@enduml

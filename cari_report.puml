@@ -1,0 +1,31 @@
+@startuml
+mainframe **sd** ReportSearch
+hide footbox
+
+actor "**: User**" as User
+boundary "**: Report List Page**" as ReportListPage
+control "**: Report Controller**" as ReportController
+entity "**: Report Repository**" as ReportRepository
+
+User -> ReportListPage : search(keyword)
+activate ReportListPage
+
+ReportListPage -> ReportController : findReports(keyword)
+activate ReportController
+
+ReportController -> ReportRepository : findByCriteria(keyword)
+activate ReportRepository
+ReportRepository --> ReportController : returnResults(reportList)
+deactivate ReportRepository
+
+ReportController --> ReportListPage : returnResults(reportList)
+deactivate ReportController
+
+alt No search results found
+    ReportListPage -> ReportListPage : displayError("No reports found")
+else Search results found
+    ReportListPage -> ReportListPage : displaySearchResults(reportList)
+end
+
+deactivate ReportListPage
+@enduml

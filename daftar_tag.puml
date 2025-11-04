@@ -1,0 +1,33 @@
+@startuml
+mainframe **sd** DaftarTag
+hide footbox
+
+actor "**: User**" as User
+boundary "**: TagManagementPage**" as TagManagementPage
+control "**: TagController**" as TagController
+entity "**: TagRepository**" as TagRepository
+
+User -> TagManagementPage : viewTags()
+activate TagManagementPage
+
+TagManagementPage -> TagController : loadTags()
+activate TagController
+
+TagController -> TagRepository : fetchAllTags()
+activate TagRepository
+
+TagRepository --> TagController : tagList
+deactivate TagRepository
+
+TagController --> TagManagementPage : tagList
+deactivate TagController
+
+alt tagList is empty
+    TagManagementPage -> TagManagementPage : displayMessage("No tags found")
+else tagList is not empty
+    TagManagementPage -> TagManagementPage : displayTags(tagList)
+end
+
+deactivate TagManagementPage
+
+@enduml

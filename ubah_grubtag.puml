@@ -1,0 +1,70 @@
+@startuml
+mainframe **sd** Edit Tag Group
+hide footbox
+
+actor "**: User**" as User
+boundary "**: TagGroupDetailPage**" as TagGroupDetailPage
+control "**: TagGroupController**" as TagGroupController
+entity "**: TagGroupRepository**" as TagGroupRepository
+
+User -> TagGroupDetailPage : clickEdit()
+activate TagGroupDetailPage
+
+TagGroupDetailPage -> TagGroupDetailPage : displayEditForm()
+activate TagGroupDetailPage
+
+User -> TagGroupDetailPage : saveChanges(tagGroupID, newData)
+
+TagGroupDetailPage -> TagGroupDetailPage : validateForm(newData.name)
+activate TagGroupDetailPage
+deactivate TagGroupDetailPage
+
+opt form invalid
+    TagGroupDetailPage -> TagGroupDetailPage : displayError("Name is required")
+    activate TagGroupDetailPage
+    deactivate TagGroupDetailPage
+
+end
+   User -> TagGroupDetailPage : saveChanges(tagGroupID, newData)
+   TagGroupDetailPage -> TagGroupDetailPage : validateForm(newData.name)
+   activate TagGroupDetailPage
+   deactivate TagGroupDetailPage
+    TagGroupDetailPage -> TagGroupController : processUpdateGroup(tagGroupID, newData)
+    activate TagGroupController
+
+    TagGroupController -> TagGroupRepository : update(tagGroupID, newData)
+    activate TagGroupRepository
+    TagGroupRepository --> TagGroupController : updateStatus
+    deactivate TagGroupRepository
+
+    alt name already exists
+        TagGroupController --> TagGroupDetailPage : error("Name already exists")
+        deactivate TagGroupController
+        
+        TagGroupDetailPage -> TagGroupDetailPage : displayError("Name already exists")
+        activate TagGroupDetailPage
+        deactivate TagGroupDetailPage
+
+        else name is unique or unchanged
+        User -> TagGroupDetailPage : saveChanges(tagGroupID, newData)
+        TagGroupDetailPage -> TagGroupDetailPage : validateForm(newData.name)
+        activate TagGroupDetailPage
+        deactivate TagGroupDetailPage
+        TagGroupDetailPage -> TagGroupController : processUpdateGroup(tagGroupID, newData)
+        activate TagGroupController
+        TagGroupController -> TagGroupRepository : update(tagGroupID, newData)
+        activate TagGroupRepository
+        TagGroupRepository --> TagGroupController : updateStatus
+        deactivate TagGroupRepository
+
+        TagGroupController --> TagGroupDetailPage : tagGroupData
+        deactivate TagGroupController
+
+        
+        TagGroupDetailPage -> TagGroupDetailPage : reloadDetails()
+        activate TagGroupDetailPage
+        deactivate TagGroupDetailPage
+        
+        deactivate TagGroupDetailPage
+    end
+@enduml

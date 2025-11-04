@@ -1,0 +1,39 @@
+@startuml
+mainframe **sd** DaftarTest
+hide footbox
+
+actor "**: User**" as User
+boundary "**: TestListPage**" as TestListPage
+control "**: TestController**" as TestController
+entity "**: TestRepository**" as TestRepository
+
+User -> TestListPage : viewTests()
+activate TestListPage
+
+TestListPage -> TestController : loadTests()
+activate TestController
+
+TestController -> TestRepository : fetchAllTests()
+activate TestRepository
+
+TestRepository --> TestController : testList
+deactivate TestRepository
+
+TestController --> TestListPage : testList
+deactivate TestController
+
+alt testList is empty
+    TestListPage -> TestListPage : displayMessage("No tests found")
+    
+activate TestListPage
+deactivate TestListPage
+else testList is not empty
+    TestListPage -> TestListPage : displayTests(testList)
+
+activate TestListPage
+deactivate TestListPage
+end
+
+deactivate TestListPage
+
+@enduml

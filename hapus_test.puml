@@ -1,0 +1,44 @@
+@startuml
+mainframe **sd** HapusTest
+hide footbox
+
+actor "**: User**" as User
+boundary "**: DetailReportPage**" as DetailReportPage
+control "**: TestController**" as TestController
+entity "**: TestCaseRepository**" as TestCaseRepository
+
+User -> DetailReportPage : clickDeleteTest(testCaseID)
+activate DetailReportPage
+
+DetailReportPage -> DetailReportPage : displayConfirmationDialog()
+activate DetailReportPage
+deactivate DetailReportPage
+
+alt User cancels
+    User -> DetailReportPage : cancelDelete()
+    deactivate DetailReportPage
+
+else User confirms
+    User -> DetailReportPage : confirmDelete(testCaseID)
+    activate DetailReportPage
+    DetailReportPage -> TestController : deleteTest(testCaseID)
+    deactivate DetailReportPage
+    activate TestController
+
+    TestController -> TestCaseRepository : deleteTestByID(testCaseID)
+    activate TestCaseRepository
+
+    TestCaseRepository --> TestController : deleteStatus
+    deactivate TestCaseRepository
+
+    TestController --> DetailReportPage : deleteStatus
+    deactivate TestController
+    activate DetailReportPage
+
+    DetailReportPage -> DetailReportPage : reloadTestList()
+    activate DetailReportPage
+    deactivate DetailReportPage
+
+    deactivate DetailReportPage
+end
+@enduml

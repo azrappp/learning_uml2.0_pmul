@@ -1,0 +1,45 @@
+@startuml
+mainframe **sd** HapusGrubTag
+hide footbox
+
+actor "**: User**" as User
+boundary "**: TagGroupManagementPage**" as TagGroupPage
+control "**: TagGroupController**" as TagGroupController
+entity "**: TagGroupRepository**" as TagGroupRepository
+
+User -> TagGroupPage : clickDelete(tagGroupID)
+activate TagGroupPage
+
+TagGroupPage -> TagGroupPage : displayConfirmationDialog()
+activate TagGroupPage
+deactivate TagGroupPage
+
+alt User cancels
+    User -> TagGroupPage : cancelDelete()
+    deactivate TagGroupPage
+
+else User confirms
+    User -> TagGroupPage : confirmDelete(tagGroupID)
+
+    activate TagGroupPage
+    TagGroupPage -> TagGroupController : deleteGroup(tagGroupID)
+    deactivate TagGroupPage
+    activate TagGroupController
+
+    TagGroupController -> TagGroupRepository : deleteByID(tagGroupID)
+    activate TagGroupRepository
+
+    TagGroupRepository --> TagGroupController : deleteStatus
+    deactivate TagGroupRepository
+
+    TagGroupController --> TagGroupPage : deleteStatus
+    deactivate TagGroupController
+    activate TagGroupPage
+
+    TagGroupPage -> TagGroupPage : reloadList()
+    activate TagGroupPage
+    deactivate TagGroupPage
+
+    deactivate TagGroupPage
+end
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+mainframe **sd** DaftarReport
+hide footbox
+
+actor "**: User**" as User
+boundary "**: Report Page**" as ReportPage
+control "**: Report Controller**" as ReportController
+entity "**: Report Repository**" as ReportRepository
+
+activate ReportPage
+
+User -> ReportPage : viewReportList()
+ReportPage -> ReportController : requestReportList()
+activate ReportController
+
+ReportController -> ReportRepository : getAllReports()
+activate ReportRepository
+ReportRepository --> ReportController : returnReportList(reportList)
+deactivate ReportRepository
+
+ReportController --> ReportPage : returnReportList(reportList)
+deactivate ReportController
+
+alt No report data found
+    ReportPage -> ReportPage : displayMessage("No report data available")
+else Reports found
+    ReportPage -> ReportPage : displayReportList(reportList)
+end
+
+deactivate ReportPage
+@enduml

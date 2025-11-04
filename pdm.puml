@@ -1,0 +1,150 @@
+@startuml
+title PDM
+
+' Menggunakan linetype ortho agar garis relasi lurus (tidak miring)
+skinparam linetype ortho
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+' === Definisi Entitas ===
+
+entity "Report" {
+  *id : Int <<PK>>
+  --
+  source_id : varchar(255)
+  generated_by : varchar(255)
+  *created_at : DateTime
+  name : varchar(255)
+  time_stamp : DateTime
+  status : varchar(255)
+  tests : Int
+  passed : Int
+  failed : Int
+  pending : Int
+  skipped : Int
+  other : Int
+  start : DateTime
+  stop : DateTime
+  suites : Int
+  app_name : varchar(255)
+  build_name : varchar(255)
+  build_number : varchar(255)
+  repository_name : varchar(255)
+  branch_name : varchar(255)
+  test_environment : varchar(255)
+}
+
+entity "Test" {
+  *id : Int <<PK>>
+  *report_id : Int <<FK>>
+  --
+  status : varchar(255)
+  name : varchar(255)
+  duration : Int
+  start : DateTime
+  stop : DateTime
+  message : varchar(255)
+  raw_status : varchar(255)
+  retries : Int
+  flaky : Boolean
+  suite : varchar(255)
+  attachments : Json
+  stdout : Json
+  stderr : Json
+  extra : Json
+  trace_url : varchar(255)
+}
+
+entity "User" {
+  *id : varchar(255) <<PK>>
+  --
+  *name : varchar(255)
+  *email : varchar(255) <<UQ>>
+  *emailVerified : Boolean
+  image : varchar(255)
+  *createdAt : DateTime
+  *updatedAt : DateTime
+}
+
+entity "Session" {
+  *id : varchar(255) <<PK>>
+  *userId : varchar(255) <<FK>>
+  --
+  *expiresAt : DateTime
+  *token : varchar(255) <<UQ>>
+  *createdAt : DateTime
+  *updatedAt : DateTime
+  ipAddress : varchar(255)
+  userAgent : varchar(255)
+}
+
+entity "Account" {
+  *id : varchar(255) <<PK>>
+  *userId : varchar(255) <<FK>>
+  --
+  *accountId : varchar(255)
+  *providerId : varchar(255)
+  accessToken : varchar(255)
+  refreshToken : varchar(255)
+  idToken : varchar(255)
+  accessTokenExpiresAt : DateTime
+  refreshTokenExpiresAt : DateTime
+  scope : varchar(255)
+  password : varchar(255)
+  *createdAt : DateTime
+  *updatedAt : DateTime
+}
+
+entity "Verification" {
+  *id : varchar(255) <<PK>>
+  --
+  *identifier : varchar(255)
+  *value : varchar(255)
+  *expiresAt : DateTime
+  *createdAt : DateTime
+  *updatedAt : DateTime
+}
+
+entity "TagGroup" {
+  *id : Int <<PK>>
+  --
+  *name : varchar(255)
+}
+
+entity "Tag" {
+  *id : Int <<PK>>
+  --
+  *name : varchar(255) <<UQ>>
+  *color : varchar(255)
+}
+
+' === Join Table (Implisit di Prisma, Eksplisit di PDM Fisik) ===
+entity "_TestTags" <<join>> {
+  *A_TestId : Int <<FK>>
+  *B_TagId : Int <<FK>>
+  --
+  (A_TestId, B_TagId) : <<PK>>
+}
+
+entity "_TagGroupsOnTags" <<join>> {
+  *A_TagGroupId : Int <<FK>>
+  *B_TagId : Int <<FK>>
+  --
+  (A_TagGroupId, B_TagId) : <<PK>>
+}
+
+' === Relasi (Information Engineering Notation) ===
+
+' Relasi 1-N (One-to-Many)
+Report ||--o{ Test
+User ||--o{ Session
+User ||--o{ Account
+
+' Relasi M-N (Many-to-Many) dipecah menjadi dua relasi 1-N
+Test ||--o{ _TestTags
+Tag  ||--o{ _TestTags
+
+TagGroup ||--o{ _TagGroupsOnTags
+Tag      ||--o{ _TagGroupsOnTags
+
+@enduml

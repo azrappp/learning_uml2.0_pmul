@@ -1,0 +1,66 @@
+@startuml
+mainframe **sd** Create New Tag Group
+hide footbox
+
+actor "**: User**" as User
+boundary "**: TagGroupManagementPage**" as TagGroupPage
+control "**: TagGroupController**" as TagGroupController
+entity "**: TagGroupRepository**" as TagGroupRepository
+
+User -> TagGroupPage : saveTagGroup(name, description, tags)
+activate TagGroupPage
+
+TagGroupPage -> TagGroupPage : validateForm(name)
+activate TagGroupPage
+deactivate TagGroupPage
+
+opt form invalid
+    TagGroupPage -> TagGroupPage : displayError("Tag group name is required")
+    activate TagGroupPage
+    deactivate TagGroupPage
+end
+    User -> TagGroupPage : saveTagGroup(name, description, tags)
+    TagGroupPage -> TagGroupPage : validateForm(name)
+    activate TagGroupPage
+    deactivate TagGroupPage
+    TagGroupPage -> TagGroupController : createNewTagGroup(name, description, tags)
+    activate TagGroupController
+    deactivate TagGroupPage
+
+        TagGroupController -> TagGroupRepository : save(name, description, tags)
+        activate TagGroupRepository
+        TagGroupRepository --> TagGroupController : saveStatus
+        deactivate TagGroupRepository
+    alt existingTagGroup is not null
+        TagGroupController --> TagGroupPage : error("Tag group already exists")
+        activate TagGroupPage
+        deactivate TagGroupController
+        
+        TagGroupPage -> TagGroupPage : displayError("Tag group already exists")
+        activate TagGroupPage
+
+    else existingTagGroup is null
+        deactivate TagGroupPage
+        deactivate TagGroupPage
+        User -> TagGroupPage : saveTagGroup(name, description, tags)
+        activate TagGroupPage
+        TagGroupPage -> TagGroupPage : validateForm(name)
+        activate TagGroupPage
+        deactivate TagGroupPage
+        TagGroupPage -> TagGroupController : createNewTagGroup(name, description, tags)
+        activate TagGroupController
+        TagGroupController -> TagGroupRepository : save(name, description, tags)
+        activate TagGroupRepository
+        TagGroupRepository --> TagGroupController : saveStatus
+        deactivate TagGroupRepository
+
+        TagGroupController --> TagGroupPage : saveStatus
+        deactivate TagGroupController
+
+        TagGroupPage -> TagGroupPage : reloadList()
+        activate TagGroupPage
+        deactivate TagGroupPage
+        
+        deactivate TagGroupPage
+    end
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+mainframe **sd** HapusTag
+hide footbox
+
+actor "**: User**" as User
+boundary "**: TagManagementPage**" as TagPage
+control "**: TagController**" as TagController
+entity "**: TagRepository**" as TagRepository
+
+User -> TagPage : clickDelete(tagID)
+activate TagPage
+
+TagPage -> TagPage : displayConfirmationDialog()
+activate TagPage
+deactivate TagPage
+
+alt User cancels
+    User -> TagPage : cancelDelete()
+    deactivate TagPage
+
+else User confirms
+    User -> TagPage : confirmDelete(tagID)
+    activate TagPage
+    TagPage -> TagController : deleteTag(tagID)
+    deactivate TagPage
+    activate TagController
+
+    TagController -> TagRepository : deleteByID(tagID)
+    activate TagRepository
+    
+    ' Koreksi Mistake 3.21 & 3.11: Menggunakan pesan balasan (-->) dengan nilai
+    TagRepository --> TagController : deleteStatus
+    deactivate TagRepository
+
+    ' Mengembalikan status ke Halaman
+    TagController --> TagPage : deleteStatus
+    deactivate TagController
+    activate TagPage
+
+    ' Alur sukses (dimuat ulang)
+    TagPage -> TagPage : reloadList()
+    activate TagPage
+    deactivate TagPage
+
+    deactivate TagPage
+end
+@enduml
