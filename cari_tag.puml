@@ -3,7 +3,7 @@ mainframe **sd** TagSearch
 hide footbox
 
 actor "**: User**" as User
-boundary "**: Tag Management Page**" as TagPage
+boundary "**: Tag Page**" as TagPage
 control "**: Tag Controller**" as TagController
 entity "**: Tag Repository**" as TagRepository
 
@@ -13,7 +13,7 @@ activate TagPage
 TagPage -> TagController : processTagSearch(keyword)
 activate TagController
 
-TagController -> TagRepository : findByCriteria(keyword)
+TagController -> TagRepository : getByTagName(keyword)
 activate TagRepository
 TagRepository --> TagController : returnResults(tagList)
 deactivate TagRepository
@@ -23,8 +23,12 @@ deactivate TagController
 
 alt No search results found
     TagPage -> TagPage : displayError("No tags found")
+    activate TagPage
+    deactivate TagPage
 else Search results found
     TagPage -> TagPage : displaySearchResults(tagList)
+    activate TagPage
+    deactivate TagPage
 end
 
 deactivate TagPage

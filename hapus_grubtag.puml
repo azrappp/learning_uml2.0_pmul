@@ -1,45 +1,47 @@
 @startuml
-mainframe **sd** HapusGrubTag
+mainframe "**sd** Hapus TagGroup"
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TagGroupManagementPage**" as TagGroupPage
-control "**: TagGroupController**" as TagGroupController
-entity "**: TagGroupRepository**" as TagGroupRepository
+boundary "**: TagGroup Page**" as TagGroupPage
+control "**: TagGroup Controller**" as TagGroupController
+entity  "**: TagGroup**" as TagGroupRepository
 
 User -> TagGroupPage : clickDelete(tagGroupID)
 activate TagGroupPage
 
-TagGroupPage -> TagGroupPage : displayConfirmationDialog()
+TagGroupPage -> TagGroupPage : showConfirmationDialog()
 activate TagGroupPage
 deactivate TagGroupPage
 
-alt User cancels
+alt user cancels
     User -> TagGroupPage : cancelDelete()
-    deactivate TagGroupPage
-
-else User confirms
+    TagGroupPage -> TagGroupPage : closeDialog()
+    TagGroupPage --> User : showMessage("Delete cancelled")
+else user confirms
     User -> TagGroupPage : confirmDelete(tagGroupID)
-
     activate TagGroupPage
-    TagGroupPage -> TagGroupController : deleteGroup(tagGroupID)
+
+    TagGroupPage -> TagGroupController : deleteTagGroup(tagGroupID)
     deactivate TagGroupPage
     activate TagGroupController
 
-    TagGroupController -> TagGroupRepository : deleteByID(tagGroupID)
+    TagGroupController -> TagGroupRepository : deleteById(tagGroupID)
     activate TagGroupRepository
-
-    TagGroupRepository --> TagGroupController : deleteStatus
+    TagGroupRepository --> TagGroupController : deleteResult(success:Boolean)
     deactivate TagGroupRepository
 
-    TagGroupController --> TagGroupPage : deleteStatus
+    TagGroupController --> TagGroupPage : deleteResult(success:Boolean)
     deactivate TagGroupController
     activate TagGroupPage
 
-    TagGroupPage -> TagGroupPage : reloadList()
-    activate TagGroupPage
-    deactivate TagGroupPage
-
+    alt delete failed
+        TagGroupPage -> TagGroupPage : displayError("Failed to delete tag group")
+        TagGroupPage --> User : showError("Failed to delete tag group")
+    else delete succeeded
+        TagGroupPage -> TagGroupPage : reloadList()
+        TagGroupPage --> User : showMessage("Tag group deleted")
+    end
     deactivate TagGroupPage
 end
 @enduml

@@ -1,31 +1,36 @@
 @startuml
-mainframe **sd** GroupTagSearch
+mainframe "**sd** TagGroupSearch"
 hide footbox
 
-actor ": **User**" as User
-boundary ": **//Group Tag Management Page//**" as GroupTagPage
-control ": **//Group Tag Controller//**" as GroupTagController
-entity ": **//Group Tag Repository//**" as GroupTagRepository
+actor "**: User**" as User
+boundary "**: TagGroupPage**" as TagGroupPage
+control "**: TagGroupController**" as TagGroupController
+entity "**: TagGroupRepository**" as TagGroupRepository
 
-User -> GroupTagPage : searchGroupTag(keyword)
-activate GroupTagPage
+' === Main Flow ===
+User -> TagGroupPage : searchTagGroup(keyword)
+activate TagGroupPage
 
-GroupTagPage -> GroupTagController : processGroupSearch(keyword)
-activate GroupTagController
+TagGroupPage -> TagGroupController : processSearch(keyword)
+activate TagGroupController
 
-GroupTagController -> GroupTagRepository : findByName(keyword)
-activate GroupTagRepository
-GroupTagRepository --> GroupTagController : returnResults(groupTagList)
-deactivate GroupTagRepository
+TagGroupController -> TagGroupRepository : findByName(keyword)
+activate TagGroupRepository
+TagGroupRepository --> TagGroupController : tagGroupList
+deactivate TagGroupRepository
 
-GroupTagController --> GroupTagPage : returnResults(groupTagList)
-deactivate GroupTagController
+TagGroupController --> TagGroupPage : tagGroupList
+deactivate TagGroupController
 
-alt No matching group tags found
-    GroupTagPage -> GroupTagPage : displayError("No matching group tags found")
-else Results found
-    GroupTagPage -> GroupTagPage : displaySearchResults(groupTagList)
+alt no tag group found
+    TagGroupPage -> TagGroupPage : displayError("No matching tag groups found")
+    activate TagGroupPage
+    deactivate TagGroupPage
+else tag groups found
+    TagGroupPage -> TagGroupPage : displaySearchResults(tagGroupList)
+    activate TagGroupPage
+    deactivate TagGroupPage
 end
 
-deactivate GroupTagPage
+deactivate TagGroupPage
 @enduml

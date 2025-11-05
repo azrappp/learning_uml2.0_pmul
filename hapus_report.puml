@@ -3,7 +3,7 @@ mainframe **sd** HapusReport
 hide footbox
 
 actor "**: User**" as User
-boundary "**: ReportListPage**" as ReportListPage
+boundary "**: Report Page**" as ReportListPage
 control "**: ReportController**" as ReportController
 entity "**: ReportRepository**" as ReportRepository
 

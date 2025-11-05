@@ -1,13 +1,13 @@
 @startuml
-mainframe **sd** Create New Tag Group
+mainframe "**sd** Tambah TagGroup"
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TagGroupManagementPage**" as TagGroupPage
-control "**: TagGroupController**" as TagGroupController
-entity "**: TagGroupRepository**" as TagGroupRepository
+boundary "**: TagGroup Page**" as TagGroupPage
+control "**: Tag GroupController**" as TagGroupController
+entity  "**: Tag Group**" as TagGroupRepository
 
-User -> TagGroupPage : saveTagGroup(name, description, tags)
+User -> TagGroupPage : submitTagGroup(name, description, tags)
 activate TagGroupPage
 
 TagGroupPage -> TagGroupPage : validateForm(name)
@@ -16,51 +16,32 @@ deactivate TagGroupPage
 
 opt form invalid
     TagGroupPage -> TagGroupPage : displayError("Tag group name is required")
-    activate TagGroupPage
+    TagGroupPage --> User : showError("Tag group name is required")
     deactivate TagGroupPage
+    return
 end
-    User -> TagGroupPage : saveTagGroup(name, description, tags)
-    TagGroupPage -> TagGroupPage : validateForm(name)
-    activate TagGroupPage
-    deactivate TagGroupPage
-    TagGroupPage -> TagGroupController : createNewTagGroup(name, description, tags)
-    activate TagGroupController
-    deactivate TagGroupPage
 
-        TagGroupController -> TagGroupRepository : save(name, description, tags)
-        activate TagGroupRepository
-        TagGroupRepository --> TagGroupController : saveStatus
-        deactivate TagGroupRepository
-    alt existingTagGroup is not null
-        TagGroupController --> TagGroupPage : error("Tag group already exists")
-        activate TagGroupPage
-        deactivate TagGroupController
-        
-        TagGroupPage -> TagGroupPage : displayError("Tag group already exists")
-        activate TagGroupPage
+' If valid, send to controller
+TagGroupPage -> TagGroupController : createTagGroup(name, description, tags)
+deactivate TagGroupPage
+activate TagGroupController
 
-    else existingTagGroup is null
-        deactivate TagGroupPage
-        deactivate TagGroupPage
-        User -> TagGroupPage : saveTagGroup(name, description, tags)
-        activate TagGroupPage
-        TagGroupPage -> TagGroupPage : validateForm(name)
-        activate TagGroupPage
-        deactivate TagGroupPage
-        TagGroupPage -> TagGroupController : createNewTagGroup(name, description, tags)
-        activate TagGroupController
-        TagGroupController -> TagGroupRepository : save(name, description, tags)
-        activate TagGroupRepository
-        TagGroupRepository --> TagGroupController : saveStatus
-        deactivate TagGroupRepository
+TagGroupController -> TagGroupRepository : save(name, description, tags)
+activate TagGroupRepository
+TagGroupRepository --> TagGroupController : saveResult(status, existing?)
+deactivate TagGroupRepository
 
-        TagGroupController --> TagGroupPage : saveStatus
-        deactivate TagGroupController
+alt tag group already exists
+    TagGroupController --> TagGroupPage : error("Tag group already exists")
+    deactivate TagGroupController
+    TagGroupPage -> TagGroupPage : displayError("Tag group already exists")
+    TagGroupPage --> User : showError("Tag group already exists")
+else new tag group created
+    TagGroupController --> TagGroupPage : saveStatus(success)
+    deactivate TagGroupController
+    TagGroupPage -> TagGroupPage : reloadList()
+    TagGroupPage --> User : showMessage("Tag group created successfully")
+end
 
-        TagGroupPage -> TagGroupPage : reloadList()
-        activate TagGroupPage
-        deactivate TagGroupPage
-        
-        deactivate TagGroupPage
-    end
+deactivate TagGroupPage
 @enduml

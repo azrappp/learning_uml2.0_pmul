@@ -1,34 +1,50 @@
 @startuml
-mainframe **sd** EksekusiTest
+mainframe "**sd** EksekusiTest"
 hide footbox
 
 actor "**: User**" as User
 boundary "**: ExecutionPage**" as ExecutionPage
 control "**: ExecutionController**" as ExecutionController
-boundary "**: BitbucketAPI**" as BitbucketAPI
+boundary "**: BitbucketAPI (external)**" as BitbucketAPI
 
-User -> ExecutionPage : executeRun(environment, optionalFilter)
+' User starts execution from UI
+User -> ExecutionPage : executeRun(environment, filter(tag?, group?))
 activate ExecutionPage
 
-ExecutionPage -> ExecutionController : processExecution(environment, optionalFilter)
+' Client-side validation and UI work
+ExecutionPage -> ExecutionPage : validateInput(environment, filter)
+activate ExecutionPage
+deactivate ExecutionPage
+
+opt invalid input
+    ExecutionPage -> User : showError("Invalid environment or filter")
+    deactivate ExecutionPage
+    return
+end
+
+' Client sends execution request to server (Next.js API)
+ExecutionPage -> ExecutionController : requestExecution(environment, filter)
 activate ExecutionController
 
-ExecutionController -> BitbucketAPI : triggerWorkflow(environment, optionalFilter)
+' Controller prepares params and calls Bitbucket API to trigger workflow
+ExecutionController -> BitbucketAPI : triggerWorkflow(workflowId, environment, filter)
 activate BitbucketAPI
 
-' Koreksi Mistake 3.21 & 3.11: Menggunakan pesan balasan (-->) dengan nilai
-BitbucketAPI --> ExecutionController : status
+' Bitbucket API returns immediate acknowledgement (could include runId or status)
+' (structured reply)
+BitbucketAPI --> ExecutionController : ack(status, runId?)
 deactivate BitbucketAPI
 
-ExecutionController --> ExecutionPage : status
+' Controller returns response to client
+ExecutionController --> ExecutionPage : executionAck(status, runId?)
 deactivate ExecutionController
 
-' Skenario Alternatif: Cek status balasan
 alt trigger failed
-    ExecutionPage -> User : displayError("Execution trigger failed")
+    ExecutionPage -> User : showError()
 else trigger successful
-    ExecutionPage -> User : displaySuccess("Execution triggered: " + status)
+    ExecutionPage -> User : showSuccess()
 end
+
 
 deactivate ExecutionPage
 @enduml

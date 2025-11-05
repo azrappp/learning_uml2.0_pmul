@@ -1,41 +1,49 @@
 @startuml
-mainframe **sd** Logout
+mainframe "**sd** Logout"
 hide footbox
 
 actor "**: User**" as User
 boundary "**: MainPage**" as MainPage
 control "**: LogoutController**" as LogoutController
-entity "**: Session**" as Session
+entity  "**: Session**" as Session
 
+' User starts logout
 User -> MainPage : clickLogout()
 activate MainPage
 
+' UI shows confirmation dialog
 MainPage -> MainPage : displayConfirmationDialog()
 activate MainPage
 deactivate MainPage
 
-' Skenario Alternatif: Konfirmasi
 alt User cancels
     User -> MainPage : cancelLogout()
+    activate MainPage
+    MainPage -> MainPage : closeDialog()
     deactivate MainPage
 
 else User confirms
     User -> MainPage : confirmLogout()
     activate MainPage
-    MainPage -> LogoutController : processLogout()
+
+    ' Page asks controller to process logout
+    MainPage -> LogoutController : processLogout(sessionId)
     deactivate MainPage
     activate LogoutController
 
-    ' Controller menghancurkan objek Sesi
-    LogoutController -> Session !! : deleteSession()
+    ' Controller deletes session
+    LogoutController -> Session : deleteSession(sessionId)
+    activate Session
+    Session --> LogoutController : deleteStatus(success)
+    deactivate Session
 
-    ' Koreksi Mistake 3.21: Controller melapor kembali ke Page
-    LogoutController --> MainPage : logoutSuccess
+    ' Controller reports back to page
+    LogoutController --> MainPage : logoutSuccess()
     deactivate LogoutController
     activate MainPage
 
-    ' Page mengarahkan pengguna
+    ' Page redirects user to login
     MainPage -> MainPage : redirectToLogin()
-    activate MainPage
+    deactivate MainPage
 end
 @enduml

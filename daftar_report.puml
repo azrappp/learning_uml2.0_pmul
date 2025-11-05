@@ -10,7 +10,7 @@ entity "**: Report Repository**" as ReportRepository
 activate ReportPage
 
 User -> ReportPage : viewReportList()
-ReportPage -> ReportController : requestReportList()
+ReportPage -> ReportController : fetchReportList()
 activate ReportController
 
 ReportController -> ReportRepository : getAllReports()

@@ -13,7 +13,7 @@ activate TestListPage
 TestListPage -> TestController : processTestSearch(keyword)
 activate TestController
 
-TestController -> TestCaseRepository : findByCriteria(keyword)
+TestController -> TestCaseRepository : getByTestKey(keyword)
 activate TestCaseRepository
 TestCaseRepository --> TestController : returnResults(testList)
 deactivate TestCaseRepository

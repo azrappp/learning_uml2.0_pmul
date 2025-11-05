@@ -10,7 +10,7 @@ entity "**: TestRepository**" as TestRepository
 User -> TestListPage : viewTests()
 activate TestListPage
 
-TestListPage -> TestController : loadTests()
+TestListPage -> TestController : fetchTests()
 activate TestController
 
 TestController -> TestRepository : fetchAllTests()

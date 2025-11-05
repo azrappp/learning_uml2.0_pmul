@@ -3,7 +3,7 @@ mainframe **sd** ReportSearch
 hide footbox
 
 actor "**: User**" as User
-boundary "**: Report List Page**" as ReportListPage
+boundary "**: Report Page**" as ReportListPage
 control "**: Report Controller**" as ReportController
 entity "**: Report Repository**" as ReportRepository
 
@@ -13,7 +13,7 @@ activate ReportListPage
 ReportListPage -> ReportController : findReports(keyword)
 activate ReportController
 
-ReportController -> ReportRepository : findByCriteria(keyword)
+ReportController -> ReportRepository : getByReportKey(keyword)
 activate ReportRepository
 ReportRepository --> ReportController : returnResults(reportList)
 deactivate ReportRepository
@@ -23,8 +23,12 @@ deactivate ReportController
 
 alt No search results found
     ReportListPage -> ReportListPage : displayError("No reports found")
+    activate ReportListPage
+    deactivate ReportListPage
 else Search results found
     ReportListPage -> ReportListPage : displaySearchResults(reportList)
+    activate ReportListPage
+    deactivate ReportListPage
 end
 
 deactivate ReportListPage

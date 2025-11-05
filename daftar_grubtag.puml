@@ -3,9 +3,9 @@ mainframe **sd** Load Tag Groups
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TagGroupManagementPage**" as TagGroupManagementPage
-control "**: TagGroupController**" as TagGroupController
-entity "**: TagGroupRepository**" as TagGroupRepository
+boundary "**: TagGroup Page**" as TagGroupManagementPage
+control "**: TagGroup Controller**" as TagGroupController
+entity "**: TagGroup**" as TagGroupRepository
 
 ' --- PANAH YANG DITAMBAHKAN ---
 ' Sesuai Rule 1, Aktor mengirim pesan ke Boundary

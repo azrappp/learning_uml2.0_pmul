@@ -1,27 +1,36 @@
 @startuml
-mainframe **sd** DetailGrubTag
+mainframe "**sd** DetailTagGroup"
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TagGroupDetailPage**" as TagGroupDetailPage
-control "**: TagGroupController**" as TagGroupController
-entity "**: TagGroupRepository**" as TagGroupRepository
+boundary "**: TagGroup Page**" as TagGroupDetailPage
+control "**: TagGroup Controller**" as TagGroupController
+entity  "**: TagGroup **" as TagGroupRepository
 
+' User selects a tag group from UI
 User -> TagGroupDetailPage : selectTagGroup(tagGroupID)
 activate TagGroupDetailPage
 
+' Page requests details from controller
 TagGroupDetailPage -> TagGroupController : fetchTagGroupDetails(tagGroupID)
 activate TagGroupController
 
-TagGroupController -> TagGroupRepository : getTagGroupByID(tagGroupID)
+' Controller asks repository for data
+TagGroupController -> TagGroupRepository : findById(tagGroupID)
 activate TagGroupRepository
 
-' Koreksi Mistake 3.21 & 3.11: Menggunakan pesan balasan (-->) dengan nilai
+' Repository returns data
 TagGroupRepository --> TagGroupController : tagGroupData
 deactivate TagGroupRepository
 
+' Controller returns data to page
 TagGroupController --> TagGroupDetailPage : tagGroupData
 deactivate TagGroupController
 
+' Page renders details to user
+TagGroupDetailPage -> TagGroupDetailPage : renderDetails(tagGroupData)
+activate TagGroupDetailPage
+TagGroupDetailPage --> User : showDetails()
+deactivate TagGroupDetailPage
 
 @enduml
