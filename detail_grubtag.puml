@@ -1,11 +1,11 @@
 @startuml
-mainframe "**sd** DetailTagGroup"
+mainframe **sd** DetailTagGroup
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TagGroup Page**" as TagGroupDetailPage
-control "**: TagGroup Controller**" as TagGroupController
-entity  "**: TagGroup **" as TagGroupRepository
+boundary "**: TagGroupPage**" as TagGroupDetailPage
+control "**: TagGroupController**" as TagGroupController
+entity  "**: TagGroup**" as TagGroupRepository
 
 ' User selects a tag group from UI
 User -> TagGroupDetailPage : selectTagGroup(tagGroupID)
@@ -30,7 +30,5 @@ deactivate TagGroupController
 ' Page renders details to user
 TagGroupDetailPage -> TagGroupDetailPage : renderDetails(tagGroupData)
 activate TagGroupDetailPage
-TagGroupDetailPage --> User : showDetails()
-deactivate TagGroupDetailPage
 
 @enduml

@@ -3,9 +3,9 @@ mainframe **sd** DetailReport
 hide footbox
 
 actor "**: User**" as User
-boundary "**: Report Page**" as ReportListPage
+boundary "**: ReportPage**" as ReportListPage
 control "**: ReportController**" as ReportController
-entity "**: ReportRepository**" as ReportRepository
+entity "**: Report**" as ReportRepository
 
 User -> ReportListPage : selectReport(reportID)
 activate ReportListPage

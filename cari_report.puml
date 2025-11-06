@@ -1,11 +1,11 @@
 @startuml
-mainframe **sd** ReportSearch
+mainframe **sd** CariReport
 hide footbox
 
 actor "**: User**" as User
-boundary "**: Report Page**" as ReportListPage
-control "**: Report Controller**" as ReportController
-entity "**: Report Repository**" as ReportRepository
+boundary "**: ReportPage**" as ReportListPage
+control "**: ReportController**" as ReportController
+entity "**: Report**" as ReportRepository
 
 User -> ReportListPage : search(keyword)
 activate ReportListPage
@@ -15,10 +15,10 @@ activate ReportController
 
 ReportController -> ReportRepository : getByReportKey(keyword)
 activate ReportRepository
-ReportRepository --> ReportController : returnResults(reportList)
+ReportRepository --> ReportController : reportList
 deactivate ReportRepository
 
-ReportController --> ReportListPage : returnResults(reportList)
+ReportController --> ReportListPage : reportList
 deactivate ReportController
 
 alt No search results found

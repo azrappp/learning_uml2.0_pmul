@@ -1,13 +1,13 @@
 @startuml
-mainframe "**sd** Login"
+mainframe **sd** Login
 hide footbox
 
 actor "**: User**" as User
 boundary "**: LoginForm**" as LoginForm
-control "**: AuthController (toNextJsHandler)**" as AuthController
-control "**: better-auth (service)**" as BetterAuthService
-entity  "**: prismaAdapter (UserRepository)**" as PrismaAdapter
-control "**: SessionService (internal)**" as SessionService
+control "**: AuthController **" as AuthController
+control "**: better-auth **" as BetterAuthService
+entity  "**: User **" as PrismaAdapter
+control "**: SessionController**" as SessionService
 
 ' --- Start of main flow ---
 User -> LoginForm : submitLogin(email, password)
@@ -18,10 +18,9 @@ activate LoginForm
 deactivate LoginForm
 
 opt fields empty
-    LoginForm -> LoginForm : displayError("Fields cannot be empty")
-    LoginForm --> User : showError("Fields cannot be empty")
+    LoginForm -> LoginForm : Error "Fields cannot be empty")
+    activate LoginForm
     deactivate LoginForm
-    return
 end
 
 ' Client calls server
@@ -37,44 +36,36 @@ PrismaAdapter --> BetterAuthService : userData or null
 deactivate PrismaAdapter
 
 alt user not found
-    BetterAuthService --> AuthController : authFailed("user not found")
-    deactivate BetterAuthService
-
-    AuthController -> LoginForm : returnError("Invalid email or password")
-    deactivate AuthController
-
+    BetterAuthService --> AuthController : Failed "user not found"
+    AuthController --> LoginForm : Error "Invalid email or password" 
     LoginForm -> LoginForm : displayError("Invalid email or password")
-    LoginForm --> User : showError("Invalid email or password")
+    activate LoginForm
     deactivate LoginForm
 
 else user found
     BetterAuthService -> BetterAuthService : verifyPassword(password, userData.passwordHash)
     activate BetterAuthService
     alt password mismatch
-        BetterAuthService --> AuthController : authFailed("bad credentials")
+        BetterAuthService --> AuthController : Failed "bad credentials"
         deactivate BetterAuthService
-
-        AuthController -> LoginForm : returnError("Invalid email or password")
-        deactivate AuthController
-
+        AuthController --> LoginForm : Error "Invalid email or password"
         LoginForm -> LoginForm : displayError("Invalid email or password")
-        LoginForm --> User : showError("Invalid email or password")
+        activate LoginForm
         deactivate LoginForm
 
     else password match
         BetterAuthService -> SessionService : createSession(userData)
         activate SessionService
-        SessionService --> BetterAuthService : session(token/cookie)
+        SessionService --> BetterAuthService : session token
         deactivate SessionService
 
-        BetterAuthService --> AuthController : success(session)
+        BetterAuthService --> AuthController : session
         deactivate BetterAuthService
 
-        AuthController -> LoginForm : returnSuccess(session)
+        AuthController --> LoginForm : session
         deactivate AuthController
-
-        LoginForm --> User : reportSuccess(userData.role)
-        LoginForm -> User : redirect("/dashboard")
+        LoginForm -> LoginForm : redirect("/dashboard")
+        activate LoginForm
         deactivate LoginForm
     end
 end

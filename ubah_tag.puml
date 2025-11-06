@@ -1,17 +1,19 @@
 @startuml
-mainframe **sd** Edit Tag
+mainframe "**sd** UbahTag"
+
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TagDetailPage**" as TagDetailPage
+boundary "**: TagPage**" as TagDetailPage
 control "**: TagController**" as TagController
-entity "**: TagRepository**" as TagRepository
+entity  "**: Tag**" as TagRepository
 
 User -> TagDetailPage : clickEdit()
 activate TagDetailPage
 
 TagDetailPage -> TagDetailPage : displayEditForm()
 activate TagDetailPage
+deactivate TagDetailPage
 
 User -> TagDetailPage : saveChanges(tagID, newData)
 
@@ -20,50 +22,29 @@ activate TagDetailPage
 deactivate TagDetailPage
 
 opt form invalid
-    TagDetailPage -> TagDetailPage : displayError("Name is required")
+    TagDetailPage -> TagDetailPage : showError("Name is required")
     activate TagDetailPage
     deactivate TagDetailPage
 end
-    User -> TagDetailPage : saveChanges(tagID, newData)
-    TagDetailPage -> TagDetailPage : validateForm(newData.name)
+
+TagDetailPage -> TagController : updateTag(tagID, newData)
+activate TagController
+
+TagController -> TagRepository : update(tagID, newData)
+activate TagRepository
+TagRepository --> TagController : updateStatus
+deactivate TagRepository
+
+alt name already exists
+    TagController --> TagDetailPage : error "Name already exists"
+    TagDetailPage -> TagDetailPage : showError("Name already exists")
     activate TagDetailPage
     deactivate TagDetailPage
-    TagDetailPage -> TagController : processUpdateTag(tagID, newData)
-    activate TagController
-
-    TagController -> TagRepository : update(tagID, newData)
-    activate TagRepository
-    TagRepository --> TagController : updateStatus
-    deactivate TagRepository
-
-    alt name already exists
-        TagController --> TagDetailPage : error("Name already exists")
-        deactivate TagController
-        
-        TagDetailPage -> TagDetailPage : displayError("Name already exists")
-        activate TagDetailPage
-        deactivate TagDetailPage
-
-    else name is unique or unchanged
-        User -> TagDetailPage : saveChanges(tagID, newData)
-        TagDetailPage -> TagDetailPage : validateForm(newData.name)
-        activate TagDetailPage
-        deactivate TagDetailPage
-        TagDetailPage -> TagController : processUpdateTag(tagID, newData)
-        activate TagController
-        TagController -> TagRepository : update(tagID, newData)
-        activate TagRepository
-        TagRepository --> TagController : updateStatus
-        deactivate TagRepository
-
-        TagController --> TagDetailPage : tagData
-        deactivate TagController
-
-        
-        TagDetailPage -> TagDetailPage : reloadDetails()
-        activate TagDetailPage
-        deactivate TagDetailPage
-        
-        deactivate TagDetailPage
-    end
+else update successful
+    TagController --> TagDetailPage : updatedTagData
+    deactivate TagController
+    TagDetailPage -> TagDetailPage : reloadDetail(data)
+    activate TagDetailPage
+    deactivate  TagDetailPage
+end
 @enduml

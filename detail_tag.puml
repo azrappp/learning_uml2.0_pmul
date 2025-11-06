@@ -3,9 +3,9 @@ mainframe **sd** DetailTag
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TagManagementPage**" as TagPage
+boundary "**: TagPage**" as TagPage
 control "**: TagController**" as TagController
-entity "**: TagRepository**" as TagRepository
+entity "**: Tag**" as TagRepository
 
 User -> TagPage : selectTag(tagID)
 activate TagPage

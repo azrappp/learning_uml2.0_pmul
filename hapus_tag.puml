@@ -5,7 +5,7 @@ hide footbox
 actor "**: User**" as User
 boundary "**: TagManagementPage**" as TagPage
 control "**: TagController**" as TagController
-entity "**: TagRepository**" as TagRepository
+entity "**: Tag**" as TagRepository
 
 User -> TagPage : clickDelete(tagID)
 activate TagPage

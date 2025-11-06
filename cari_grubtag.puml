@@ -1,11 +1,11 @@
 @startuml
-mainframe "**sd** TagGroupSearch"
+mainframe **sd** CariTagGroup
 hide footbox
 
 actor "**: User**" as User
 boundary "**: TagGroupPage**" as TagGroupPage
 control "**: TagGroupController**" as TagGroupController
-entity "**: TagGroupRepository**" as TagGroupRepository
+entity "**: TagGroup**" as TagGroupRepository
 
 ' === Main Flow ===
 User -> TagGroupPage : searchTagGroup(keyword)

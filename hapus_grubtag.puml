@@ -1,10 +1,10 @@
 @startuml
-mainframe "**sd** Hapus TagGroup"
+mainframe **sd** HapusTagGroup
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TagGroup Page**" as TagGroupPage
-control "**: TagGroup Controller**" as TagGroupController
+boundary "**: TagGroupPage**" as TagGroupPage
+control "**: TagGroupController**" as TagGroupController
 entity  "**: TagGroup**" as TagGroupRepository
 
 User -> TagGroupPage : clickDelete(tagGroupID)
@@ -17,30 +17,30 @@ deactivate TagGroupPage
 alt user cancels
     User -> TagGroupPage : cancelDelete()
     TagGroupPage -> TagGroupPage : closeDialog()
-    TagGroupPage --> User : showMessage("Delete cancelled")
+    activate TagGroupPage
+    deactivate TagGroupPage
 else user confirms
     User -> TagGroupPage : confirmDelete(tagGroupID)
-    activate TagGroupPage
 
     TagGroupPage -> TagGroupController : deleteTagGroup(tagGroupID)
-    deactivate TagGroupPage
     activate TagGroupController
 
     TagGroupController -> TagGroupRepository : deleteById(tagGroupID)
     activate TagGroupRepository
-    TagGroupRepository --> TagGroupController : deleteResult(success:Boolean)
+    TagGroupRepository --> TagGroupController : deleteStatus
     deactivate TagGroupRepository
 
-    TagGroupController --> TagGroupPage : deleteResult(success:Boolean)
+    TagGroupController --> TagGroupPage : deleteStatus
     deactivate TagGroupController
-    activate TagGroupPage
 
     alt delete failed
         TagGroupPage -> TagGroupPage : displayError("Failed to delete tag group")
-        TagGroupPage --> User : showError("Failed to delete tag group")
+        activate TagGroupPage
+        deactivate TagGroupPage
     else delete succeeded
         TagGroupPage -> TagGroupPage : reloadList()
-        TagGroupPage --> User : showMessage("Tag group deleted")
+        activate TagGroupPage
+        deactivate TagGroupPage 
     end
     deactivate TagGroupPage
 end

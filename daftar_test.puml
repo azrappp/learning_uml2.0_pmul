@@ -3,9 +3,9 @@ mainframe **sd** DaftarTest
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TestListPage**" as TestListPage
+boundary "**: TestPage**" as TestListPage
 control "**: TestController**" as TestController
-entity "**: TestRepository**" as TestRepository
+entity "**: Test**" as TestRepository
 
 User -> TestListPage : viewTests()
 activate TestListPage

@@ -18,32 +18,30 @@ deactivate MainPage
 
 alt User cancels
     User -> MainPage : cancelLogout()
-    activate MainPage
     MainPage -> MainPage : closeDialog()
+    activate MainPage
     deactivate MainPage
 
 else User confirms
     User -> MainPage : confirmLogout()
-    activate MainPage
 
     ' Page asks controller to process logout
     MainPage -> LogoutController : processLogout(sessionId)
-    deactivate MainPage
     activate LogoutController
 
     ' Controller deletes session
     LogoutController -> Session : deleteSession(sessionId)
     activate Session
-    Session --> LogoutController : deleteStatus(success)
+    Session --> LogoutController : deleteStatus
     deactivate Session
 
     ' Controller reports back to page
-    LogoutController --> MainPage : logoutSuccess()
+    LogoutController --> MainPage : logoutStatus
     deactivate LogoutController
-    activate MainPage
 
     ' Page redirects user to login
     MainPage -> MainPage : redirectToLogin()
+    activate MainPage
     deactivate MainPage
 end
 @enduml

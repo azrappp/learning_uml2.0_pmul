@@ -1,11 +1,11 @@
 @startuml
-mainframe **sd** TagSearch
+mainframe **sd** CariTag
 hide footbox
 
 actor "**: User**" as User
-boundary "**: Tag Page**" as TagPage
-control "**: Tag Controller**" as TagController
-entity "**: Tag Repository**" as TagRepository
+boundary "**: TagPage**" as TagPage
+control "**: TagController**" as TagController
+entity "**: Tag**" as TagRepository
 
 User -> TagPage : searchTag(keyword)
 activate TagPage
@@ -15,10 +15,10 @@ activate TagController
 
 TagController -> TagRepository : getByTagName(keyword)
 activate TagRepository
-TagRepository --> TagController : returnResults(tagList)
+TagRepository --> TagController : tagList
 deactivate TagRepository
 
-TagController --> TagPage : returnResults(tagList)
+TagController --> TagPage : tagList
 deactivate TagController
 
 alt No search results found

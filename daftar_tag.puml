@@ -3,9 +3,9 @@ mainframe **sd** DaftarTag
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TagManagementPage**" as TagManagementPage
+boundary "**: TagPage**" as TagManagementPage
 control "**: TagController**" as TagController
-entity "**: TagRepository**" as TagRepository
+entity "**: Tag**" as TagRepository
 
 User -> TagManagementPage : viewTags()
 activate TagManagementPage
@@ -24,8 +24,12 @@ deactivate TagController
 
 alt tagList is empty
     TagManagementPage -> TagManagementPage : displayMessage("No tags found")
+    activate TagManagementPage
+    deactivate TagManagementPage
 else tagList is not empty
     TagManagementPage -> TagManagementPage : displayTags(tagList)
+    activate TagManagementPage
+    deactivate TagManagementPage
 end
 
 deactivate TagManagementPage

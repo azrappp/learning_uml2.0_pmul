@@ -1,46 +1,51 @@
 @startuml
-mainframe "**sd** Tambah TagGroup"
+mainframe **sd**TambahTagGroup
 hide footbox
 
-actor "**: User**" as User
-boundary "**: TagGroup Page**" as TagGroupPage
-control "**: Tag GroupController**" as TagGroupController
-entity  "**: Tag Group**" as TagGroupRepository
+actor "**:User**" as User
+boundary "**:TagGroupPage**" as TagGroupPage
+control "**:TagGroupController**" as TagGroupController
+entity "**:TagGroup**" as TagGroupRepository
 
-User -> TagGroupPage : submitTagGroup(name, description, tags)
+User -> TagGroupPage : saveTagGroup(name, description)
 activate TagGroupPage
 
+' Pesan divalidasi dan mengembalikan status'
 TagGroupPage -> TagGroupPage : validateForm(name)
 activate TagGroupPage
 deactivate TagGroupPage
-
-opt form invalid
+' Guard [opt] sekarang menggunakan nilai balasan secara eksplisit'
+opt validationStatus == "invalid"
     TagGroupPage -> TagGroupPage : displayError("Tag group name is required")
-    TagGroupPage --> User : showError("Tag group name is required")
+    activate TagGroupPage
     deactivate TagGroupPage
-    return
 end
 
-' If valid, send to controller
-TagGroupPage -> TagGroupController : createTagGroup(name, description, tags)
-deactivate TagGroupPage
-activate TagGroupController
+' Guard [alt] sekarang menggunakan nilai balasan secara eksplisit'
+alt validationStatus == "valid"
+    TagGroupPage -> TagGroupController : createNewTagGroup(name, description)
+    activate TagGroupController
 
-TagGroupController -> TagGroupRepository : save(name, description, tags)
-activate TagGroupRepository
-TagGroupRepository --> TagGroupController : saveResult(status, existing?)
-deactivate TagGroupRepository
+        TagGroupController -> TagGroupRepository : save(name, description)
+        activate TagGroupRepository
+        ' Pesan balasan harus berupa nilai yang dapat dievaluasi'
+        TagGroupRepository --> TagGroupController : saveStatus
+        deactivate TagGroupRepository
 
-alt tag group already exists
-    TagGroupController --> TagGroupPage : error("Tag group already exists")
+        ' Guard disesuaikan untuk tag group'
+        alt saveStatus == "tag_group_already_exists"
+            TagGroupController --> TagGroupPage : error("Tag group already exists")
+            TagGroupPage -> TagGroupPage : displayError("Tag group already exists")
+            activate TagGroupPage
+            deactivate TagGroupPage
+        else saveStatus == "success"
+            TagGroupController --> TagGroupPage : "success"
+            TagGroupPage -> TagGroupPage : reloadList()
+            activate TagGroupPage
+            deactivate TagGroupPage
+        end
+
     deactivate TagGroupController
-    TagGroupPage -> TagGroupPage : displayError("Tag group already exists")
-    TagGroupPage --> User : showError("Tag group already exists")
-else new tag group created
-    TagGroupController --> TagGroupPage : saveStatus(success)
-    deactivate TagGroupController
-    TagGroupPage -> TagGroupPage : reloadList()
-    TagGroupPage --> User : showMessage("Tag group created successfully")
 end
 
 deactivate TagGroupPage

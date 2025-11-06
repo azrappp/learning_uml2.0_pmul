@@ -3,9 +3,9 @@ mainframe **sd** DaftarReport
 hide footbox
 
 actor "**: User**" as User
-boundary "**: Report Page**" as ReportPage
-control "**: Report Controller**" as ReportController
-entity "**: Report Repository**" as ReportRepository
+boundary "**: ReportPage**" as ReportPage
+control "**: ReportController**" as ReportController
+entity "**: Report**" as ReportRepository
 
 activate ReportPage
 
@@ -15,16 +15,20 @@ activate ReportController
 
 ReportController -> ReportRepository : getAllReports()
 activate ReportRepository
-ReportRepository --> ReportController : returnReportList(reportList)
+ReportRepository --> ReportController : reportList
 deactivate ReportRepository
 
-ReportController --> ReportPage : returnReportList(reportList)
+ReportController --> ReportPage : reportList
 deactivate ReportController
 
 alt No report data found
     ReportPage -> ReportPage : displayMessage("No report data available")
+    activate ReportPage
+    deactivate ReportPage
 else Reports found
     ReportPage -> ReportPage : displayReportList(reportList)
+    activate ReportPage
+    deactivate ReportPage
 end
 
 deactivate ReportPage

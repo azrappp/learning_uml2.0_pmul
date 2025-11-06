@@ -1,17 +1,19 @@
 @startuml
-mainframe **sd** Edit Tag Group
+mainframe "**sd** UbahTagGroup"
+
 hide footbox
 
 actor "**: User**" as User
-boundary "**: TagGroupDetailPage**" as TagGroupDetailPage
+boundary "**: TagGroupPage**" as TagGroupDetailPage
 control "**: TagGroupController**" as TagGroupController
-entity "**: TagGroupRepository**" as TagGroupRepository
+entity  "**: TagGroup**" as TagGroupRepository
 
 User -> TagGroupDetailPage : clickEdit()
 activate TagGroupDetailPage
 
 TagGroupDetailPage -> TagGroupDetailPage : displayEditForm()
 activate TagGroupDetailPage
+deactivate TagGroupDetailPage
 
 User -> TagGroupDetailPage : saveChanges(tagGroupID, newData)
 
@@ -20,51 +22,29 @@ activate TagGroupDetailPage
 deactivate TagGroupDetailPage
 
 opt form invalid
-    TagGroupDetailPage -> TagGroupDetailPage : displayError("Name is required")
+    TagGroupDetailPage -> TagGroupDetailPage : showError("Name is required")
     activate TagGroupDetailPage
     deactivate TagGroupDetailPage
-
 end
-   User -> TagGroupDetailPage : saveChanges(tagGroupID, newData)
-   TagGroupDetailPage -> TagGroupDetailPage : validateForm(newData.name)
-   activate TagGroupDetailPage
-   deactivate TagGroupDetailPage
-    TagGroupDetailPage -> TagGroupController : processUpdateGroup(tagGroupID, newData)
-    activate TagGroupController
 
-    TagGroupController -> TagGroupRepository : update(tagGroupID, newData)
-    activate TagGroupRepository
-    TagGroupRepository --> TagGroupController : updateStatus
-    deactivate TagGroupRepository
+TagGroupDetailPage -> TagGroupController : updateTagGroup(tagGroupID, newData)
+activate TagGroupController
 
-    alt name already exists
-        TagGroupController --> TagGroupDetailPage : error("Name already exists")
-        deactivate TagGroupController
-        
-        TagGroupDetailPage -> TagGroupDetailPage : displayError("Name already exists")
-        activate TagGroupDetailPage
-        deactivate TagGroupDetailPage
+TagGroupController -> TagGroupRepository : update(tagGroupID, newData)
+activate TagGroupRepository
+TagGroupRepository --> TagGroupController : updateStatus
+deactivate TagGroupRepository
 
-        else name is unique or unchanged
-        User -> TagGroupDetailPage : saveChanges(tagGroupID, newData)
-        TagGroupDetailPage -> TagGroupDetailPage : validateForm(newData.name)
-        activate TagGroupDetailPage
-        deactivate TagGroupDetailPage
-        TagGroupDetailPage -> TagGroupController : processUpdateGroup(tagGroupID, newData)
-        activate TagGroupController
-        TagGroupController -> TagGroupRepository : update(tagGroupID, newData)
-        activate TagGroupRepository
-        TagGroupRepository --> TagGroupController : updateStatus
-        deactivate TagGroupRepository
-
-        TagGroupController --> TagGroupDetailPage : tagGroupData
-        deactivate TagGroupController
-
-        
-        TagGroupDetailPage -> TagGroupDetailPage : reloadDetails()
-        activate TagGroupDetailPage
-        deactivate TagGroupDetailPage
-        
-        deactivate TagGroupDetailPage
-    end
+alt name already exists
+    TagGroupController --> TagGroupDetailPage : error "Name already exists"
+    TagGroupDetailPage -> TagGroupDetailPage : showError("Name already exists")
+    activate TagGroupDetailPage
+    deactivate TagGroupDetailPage
+else update successful
+    TagGroupController --> TagGroupDetailPage : updatedTagGroupData
+    deactivate TagGroupController
+    TagGroupDetailPage -> TagGroupDetailPage : reloadDetail(data)
+    activate TagGroupDetailPage
+    deactivate TagGroupDetailPage
+end
 @enduml

@@ -1,11 +1,11 @@
 @startuml
-mainframe **sd** DetailReport
+mainframe **sd** DetailTest
 hide footbox
 
 actor "**: User**" as User
 boundary "**: DetailReportPage**" as DetailReportPage
 control "**: TestController**" as TestController
-entity "**: TestCaseRepository**" as TestCaseRepository
+entity "**: Test**" as TestCaseRepository
 
 User -> DetailReportPage : selectTestCase(testCaseID)
 activate DetailReportPage

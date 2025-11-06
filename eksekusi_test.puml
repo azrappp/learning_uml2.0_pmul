@@ -5,7 +5,7 @@ hide footbox
 actor "**: User**" as User
 boundary "**: ExecutionPage**" as ExecutionPage
 control "**: ExecutionController**" as ExecutionController
-boundary "**: BitbucketAPI (external)**" as BitbucketAPI
+boundary "**: BitbucketAPI**" as BitbucketAPI
 
 ' User starts execution from UI
 User -> ExecutionPage : executeRun(environment, filter(tag?, group?))
@@ -17,9 +17,9 @@ activate ExecutionPage
 deactivate ExecutionPage
 
 opt invalid input
-    ExecutionPage -> User : showError("Invalid environment or filter")
+    ExecutionPage -> ExecutionPage : showError("Invalid environment or filter")
+    activate ExecutionPage
     deactivate ExecutionPage
-    return
 end
 
 ' Client sends execution request to server (Next.js API)
@@ -32,17 +32,21 @@ activate BitbucketAPI
 
 ' Bitbucket API returns immediate acknowledgement (could include runId or status)
 ' (structured reply)
-BitbucketAPI --> ExecutionController : ack(status, runId?)
+BitbucketAPI --> ExecutionController : status
 deactivate BitbucketAPI
 
 ' Controller returns response to client
-ExecutionController --> ExecutionPage : executionAck(status, runId?)
+ExecutionController --> ExecutionPage : status
 deactivate ExecutionController
 
 alt trigger failed
-    ExecutionPage -> User : showError()
+    ExecutionPage -> ExecutionPage : showError()
+    activate ExecutionPage
+    deactivate ExecutionPage
 else trigger successful
-    ExecutionPage -> User : showSuccess()
+    ExecutionPage -> ExecutionPage : showSuccess()
+    activate ExecutionPage
+    deactivate ExecutionPage
 end
 
 

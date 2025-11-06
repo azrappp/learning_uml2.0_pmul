@@ -5,7 +5,7 @@ hide footbox
 actor "**: User**" as User
 boundary "**: Report Page**" as ReportListPage
 control "**: ReportController**" as ReportController
-entity "**: ReportRepository**" as ReportRepository
+entity "**: Report**" as ReportRepository
 
 User -> ReportListPage : clickDelete(reportID)
 activate ReportListPage
@@ -16,13 +16,10 @@ deactivate ReportListPage
 
 alt User cancels
     User -> ReportListPage : cancelDelete()
-    deactivate ReportListPage
 
 else User confirms
     User -> ReportListPage : confirmDelete(reportID)
-    activate ReportListPage
     ReportListPage -> ReportController : deleteReport(reportID)
-    deactivate ReportListPage
     activate ReportController
 
     ReportController -> ReportRepository : deleteReportByID(reportID)
@@ -33,7 +30,6 @@ else User confirms
 
     ReportController --> ReportListPage : deleteStatus
     deactivate ReportController
-    activate ReportListPage
 
     ReportListPage -> ReportListPage : reloadList()
     activate ReportListPage

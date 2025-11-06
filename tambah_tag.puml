@@ -1,66 +1,51 @@
 @startuml
-mainframe **sd** Create New Tag
+mainframe **sd**TambahTag
 hide footbox
 
-actor "**: User**" as User
-boundary "**: TagManagementPage**" as TagPage
-control "**: TagController**" as TagController
-entity "**: TagRepository**" as TagRepository
+actor "**:User**" as User
+boundary "**:TagPage**" as TagPage
+control "**:TagController**" as TagController
+entity "**:Tag**" as TagRepository
 
 User -> TagPage : saveTag(name, description)
 activate TagPage
 
+' Pesan divalidasi dan mengembalikan status'
 TagPage -> TagPage : validateForm(name)
 activate TagPage
 deactivate TagPage
-
-opt form invalid
+' Guard [opt] sekarang menggunakan nilai balasan secara eksplisit'
+opt validationStatus == "invalid"
     TagPage -> TagPage : displayError("Tag name is required")
     activate TagPage
     deactivate TagPage
 end
-    User -> TagPage : saveTag(name, description)
-    TagPage -> TagPage : validateForm(name)
-    activate TagPage
-    deactivate TagPage
+
+' Guard [alt] sekarang menggunakan nilai balasan secara eksplisit'
+alt validationStatus == "valid"
     TagPage -> TagController : createNewTag(name, description)
     activate TagController
-    deactivate TagPage
 
         TagController -> TagRepository : save(name, description)
         activate TagRepository
-        TagRepository --> TagController : saveStatus
-        deactivate TagRepository
-    alt existingTag is not null
-        TagController --> TagPage : error("Tag already exists")
-        activate TagPage
-        deactivate TagController
-        
-        TagPage -> TagPage : displayError("Tag already exists")
-        activate TagPage
-
-    else existingTag is null
-        deactivate TagPage
-        deactivate TagPage
-        User -> TagPage : saveTag(name, description)
-        activate TagPage
-        TagPage -> TagPage : validateForm(name)
-        activate TagPage
-        deactivate TagPage
-        TagPage -> TagController : createNewTag(name, description)
-        activate TagController
-        TagController -> TagRepository : save(name, description)
-        activate TagRepository
+        ' Pesan balasan harus berupa nilai yang dapat dievaluasi'
         TagRepository --> TagController : saveStatus
         deactivate TagRepository
 
-        TagController --> TagPage : saveStatus
-        deactivate TagController
+        alt saveStatus == "tag_already_exists"
+            TagController --> TagPage : error("Tag already exists")
+            TagPage -> TagPage : displayError("Tag already exists")
+            activate TagPage
+            deactivate TagPage
+        else saveStatus == "success"
+            TagController --> TagPage : "success"
+            TagPage -> TagPage : reloadList()
+            activate TagPage
+            deactivate TagPage
+        end
 
-        TagPage -> TagPage : reloadList()
-        activate TagPage
-        deactivate TagPage
-        
-        deactivate TagPage
-    end
+    deactivate TagController
+end
+
+deactivate TagPage
 @enduml

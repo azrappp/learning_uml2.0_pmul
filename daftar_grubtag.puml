@@ -1,5 +1,5 @@
 @startuml
-mainframe **sd** Load Tag Groups
+mainframe **sd** DaftarTagGroup
 hide footbox
 
 actor "**: User**" as User
@@ -27,8 +27,12 @@ deactivate TagGroupController
 
 alt tagGroupList is empty
     TagGroupManagementPage -> TagGroupManagementPage : displayMessage("No tag groups found")
+    activate TagGroupManagementPage
+    deactivate TagGroupManagementPage
 else tagGroupList is not empty
     TagGroupManagementPage -> TagGroupManagementPage : displayTagGroups(tagGroupList)
+    activate TagGroupManagementPage
+    deactivate TagGroupManagementPage
 end
 
 deactivate TagGroupManagementPage
